@@ -10,7 +10,7 @@
 
 This repo contains a simulated implementation of the "*Pose-Based Tactile Servoing: Controlled Soft Touch Using Deep Learning*" [paper](https://ieeexplore.ieee.org/document/9502718). The data collection, supervised deep learning, and servo control procedures are implemented using the open-sourced [Tactile Gym](https://github.com/ac-93/tactile_gym) simulation platform.
 
-There are four main tasks sharing the same underlying data collection, learning and servo control methods. These are **Surface Following 3D**, **Edge Following 2D**, **Edge Following 3D** and **Edge Following 5D**. 
+There are four main tasks sharing the same underlying data collection, learning and servo control methods. These are **Surface Following 3D**, **Edge Following 2D**, **Edge Following 3D** and **Edge Following 5D**.
 
 <p align="center">
    <img width="256" src="example_videos/surface_3d_saddle.gif" title="Surface Following 3D."> &nbsp;&nbsp;&nbsp;&nbsp;
@@ -41,12 +41,12 @@ Install Tactile-Gym Servo Control
 ```
 git clone https://github.com/ac-93/tactile_gym_servo_control.git
 cd tactile_gym_servo_control
-python setup.py install
+pip install -e .
 ```
 
 ### Data Collection ###
 
-The required data is too large to store on Github, instead this data can be quickly generated and gathered in simulation. 
+Data can be quickly generated and gathered in simulation.
 
 To gather a small amount of example data with visualisation enabled run
 
@@ -54,7 +54,7 @@ To gather a small amount of example data with visualisation enabled run
 python data_collection/collect_data.py
 ```
 
-To collect a full training and validation sets run 
+To collect a full training and validation sets run
 
 (**WARNING** - This will gather 28,000 images - approximately 100mb)
 
@@ -66,7 +66,7 @@ This can be generated significantly faster with rendering and GUI disabled on Ub
 
 ### Learning ###
 
-This section implements supervised deep learning methods for predicting the pose of the tactile sensors based on the tactile image gathered during data collection.  Pose is encoded and decoded for accurate NN prediction, this uses normalisation for position and  sine/cosine encoding for rotation. Details of this can be found in ```learning/learning_utils.py```. Data must be collected prior to running these commands.
+This section implements supervised deep learning methods for predicting the pose of the tactile sensors based on the tactile image gathered during data collection.  Pose is encoded and decoded for accurate NN prediction, this uses normalisation for position and  sine/cosine encoding for rotation. Details of this can be found in ```learning/learning_utils.py```.
 
 Image processing and augmentations are used for more robust learning. To visualise the effects of these run
 
@@ -74,7 +74,7 @@ Image processing and augmentations are used for more robust learning. To visuali
 python learning/demo_image_generation.py
 ```
 
-To train a CNN for pose prediction run 
+To train a CNN for pose prediction run
 
 ```
 python learning/train_cnn.py
@@ -106,8 +106,8 @@ Pose-Based Tactile Servoing
 ```
 @InProceedings{Lepora2021PBTS,
   author={Lepora, Nathan F. and Lloyd, John},
-  journal={IEEE Robotics & Automation Magazine}, 
-  title={Pose-Based Tactile Servoing: Controlled Soft Touch Using Deep Learning}, 
+  journal={IEEE Robotics & Automation Magazine},
+  title={Pose-Based Tactile Servoing: Controlled Soft Touch Using Deep Learning},
   year={2021},
   volume={28},
   number={4},
