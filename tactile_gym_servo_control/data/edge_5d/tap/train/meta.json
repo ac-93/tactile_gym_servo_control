@@ -1,0 +1,1 @@
+{"task_name": "edge_5d", "apply_shear": false, "home_dir": "../data/edge_5d/tap", "collect_dir": "../data/edge_5d/tap/train", "image_dir": "../data/edge_5d/tap/train/images", "target_file": "../data/edge_5d/tap/train/targets.csv"}

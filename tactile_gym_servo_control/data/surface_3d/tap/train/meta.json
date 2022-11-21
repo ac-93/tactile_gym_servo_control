@@ -1,0 +1,1 @@
+{"task_name": "surface_3d", "apply_shear": false, "home_dir": "../data/surface_3d/tap", "collect_dir": "../data/surface_3d/tap/train", "image_dir": "../data/surface_3d/tap/train/images", "target_file": "../data/surface_3d/tap/train/targets.csv"}
