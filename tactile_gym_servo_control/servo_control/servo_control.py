@@ -8,6 +8,7 @@ import imageio
 
 from tactile_gym.utils.general_utils import load_json_obj
 
+from tactile_gym_servo_control.learning.learning_utils import import_task
 from tactile_gym_servo_control.learning.learning_utils import decode_pose
 from tactile_gym_servo_control.learning.learning_utils import POSE_LABEL_NAMES, POS_LABEL_NAMES, ROT_LABEL_NAMES
 from tactile_gym_servo_control.cri_wrapper.cri_embodiment import quat2euler, euler2quat, transform, inv_transform
@@ -15,9 +16,15 @@ from tactile_gym_servo_control.utils.pybullet_utils import setup_pybullet_env
 from tactile_gym_servo_control.learning.networks import CNN
 from tactile_gym_servo_control.utils.image_transforms import process_image
 
+from tactile_gym_servo_control.servo_control.setup_servo_control import setup_surface_3d_servo_control
+from tactile_gym_servo_control.servo_control.setup_servo_control import setup_edge_2d_servo_control
+from tactile_gym_servo_control.servo_control.setup_servo_control import setup_edge_3d_servo_control
+from tactile_gym_servo_control.servo_control.setup_servo_control import setup_edge_5d_servo_control
+
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
+model_path = os.path.join(os.path.dirname(__file__), '../learned_models')
 
 
 def load_embodiment_and_env(stim_name="square"):
@@ -226,4 +233,59 @@ def run_servo_control(
 
 
 if __name__ == '__main__':
-    pass
+
+    # tasks = ["surface_3d"]
+    # tasks = ["edge_2d"]
+    # tasks = ["edge_3d"]
+    # tasks = ["edge_5d"]
+    tasks = ["surface_3d", "edge_2d", "edge_3d", "edge_5d"]
+
+    for task in tasks:
+
+        # get the correct setup for the current task
+        if task == "surface_3d":
+            setup_servo_control = setup_surface_3d_servo_control
+        if task == "edge_2d":
+            setup_servo_control = setup_edge_2d_servo_control
+        elif task == "edge_3d":
+            setup_servo_control = setup_edge_3d_servo_control
+        elif task == "edge_5d":
+            setup_servo_control = setup_edge_5d_servo_control
+
+        # set save dir
+        save_dir_name = os.path.join(
+            model_path,
+            task,
+            'tap',
+        )
+
+        # get limits and labels used during training
+        out_dim, label_names = import_task(task)
+        pose_limits_dict = load_json_obj(os.path.join(save_dir_name, 'pose_limits'))
+        pose_limits = [pose_limits_dict['pose_llims'], pose_limits_dict['pose_ulims']]
+
+        # setup the task
+        move_init_pose, stim_names, ep_len, ref_pose, p_gains = setup_servo_control()
+
+        # perform the servo control
+        for stim_name in stim_names:
+
+            embodiment = load_embodiment_and_env(stim_name)
+
+            move_init_pose(embodiment, stim_name)
+
+            trained_model, learning_params, image_processing_params = load_nn_model(
+                save_dir_name, out_dim=out_dim
+            )
+
+            run_servo_control(
+                embodiment,
+                trained_model,
+                image_processing_params,
+                ref_pose=ref_pose,
+                p_gains=p_gains,
+                label_names=label_names,
+                pose_limits=pose_limits,
+                ep_len=ep_len,
+                quick_mode=False
+            )
