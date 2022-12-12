@@ -17,6 +17,8 @@ from tactile_gym_servo_control.utils.image_transforms import process_image
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
+stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
+
 
 def load_robot_and_env(stim_name="square"):
 
@@ -40,8 +42,7 @@ def load_robot_and_env(stim_name="square"):
     stimulus_pos = [0.6, 0.0, 0.0125]
     stimulus_rpy = [0, 0, 0]
     stim_path = os.path.join(
-        os.path.dirname(__file__),
-        "../stimuli/",
+        stimuli_path,
         stim_name,
         stim_name + ".urdf"
     )

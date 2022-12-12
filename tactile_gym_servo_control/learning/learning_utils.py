@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 import torch
 
 from tactile_gym.utils.general_utils import save_json_obj, load_json_obj
@@ -95,7 +96,6 @@ def encode_pose(labels_dict, target_label_names, limits, device='cpu'):
         # sine/cosine encoding of angle
         if label_name in ROT_LABEL_NAMES:
             ang = target * np.pi/180
-            ang[ang < 0] += 2 * np.pi
             encoded_pose.append(torch.sin(ang).float().to(device).unsqueeze(dim=1))
             encoded_pose.append(torch.cos(ang).float().to(device).unsqueeze(dim=1))
 
@@ -145,7 +145,6 @@ def decode_pose(outputs, target_label_names, limits):
             cos_predictions = outputs[:, label_name_idx + 1].detach().cpu()
 
             pred_rot = torch.atan2(sin_predictions, cos_predictions)
-            pred_rot[pred_rot < 0] += 2 * np.pi
             pred_rot = pred_rot * (180.0 / np.pi)
 
             decoded_pose[label_name] = pred_rot
@@ -153,16 +152,43 @@ def decode_pose(outputs, target_label_names, limits):
     return decoded_pose
 
 
+def err_metric(labels, predictions, target_label_names):
+    """
+    Error metric for regression problem, returns dict of errors in interpretable units.
+    Position error (mm), Rotation error (degrees).
+    """
+    err_df = pd.DataFrame(columns=POSE_LABEL_NAMES)
+    for label_name in target_label_names:
+
+        if label_name in POS_LABEL_NAMES:
+            abs_err = torch.abs(
+                labels[label_name] - predictions[label_name]
+            ).detach().cpu().numpy()
+
+        if label_name in ROT_LABEL_NAMES:
+            # convert rad
+            targ_rot = labels[label_name] * np.pi/180
+            pred_rot = predictions[label_name] * np.pi/180
+
+            # Calculate the difference between angles, takining into account the periodicity of angles (thanks ChatGPT)
+            abs_err = torch.abs(
+                torch.atan2(torch.sin(targ_rot - pred_rot), torch.cos(targ_rot - pred_rot))
+            ).detach().cpu().numpy() * (180.0 / np.pi)
+
+        err_df[label_name] = abs_err
+
+    return err_df
+
+
 def acc_metric(labels, predictions, target_label_names, pos_tol=0.2, rot_tol=1.0):
     """
     Accuracy metric for regression problem, counting the number of predictions within a tolerance.
-
     Position Tolerance (mm), Rotation Tolerance (degrees)
     """
 
-    acc_dict = {}
-    total_counted = predictions[target_label_names[0]].shape[0]
-    overall_correct = np.ones(total_counted, dtype=bool)
+    batch_size = list(labels.values())[0].shape[0]
+    acc_df = pd.DataFrame(columns=[*POSE_LABEL_NAMES, 'overall_acc'])
+    overall_correct = np.ones(batch_size, dtype=bool)
     for label_name in target_label_names:
 
         if label_name in POS_LABEL_NAMES:
@@ -170,26 +196,22 @@ def acc_metric(labels, predictions, target_label_names, pos_tol=0.2, rot_tol=1.0
                 labels[label_name] - predictions[label_name]
             ).detach().cpu().numpy()
             correct = (abs_err < pos_tol)
-            acc_dict[label_name + '_acc'] = np.sum(correct) / total_counted
 
         if label_name in ROT_LABEL_NAMES:
             # convert rad
             targ_rot = labels[label_name] * np.pi/180
             pred_rot = predictions[label_name] * np.pi/180
 
-            # make sure same range
-            targ_rot[targ_rot < 0] += 2 * np.pi
-            pred_rot[pred_rot < 0] += 2 * np.pi
-
-            # calc error (TODO: fix to catch cases on boundary of [0, 360])
-            abs_err = torch.abs(targ_rot - pred_rot).detach().cpu().numpy()
-            correct = (abs_err < (rot_tol * np.pi/180))
-            acc_dict[label_name + '_acc'] = np.sum(correct) / total_counted
+            # Calculate the difference between angles, takining into account the periodicity of angles (thanks ChatGPT)
+            abs_err = torch.abs(
+                torch.atan2(torch.sin(targ_rot - pred_rot), torch.cos(targ_rot - pred_rot))
+            ).detach().cpu().numpy() * (180.0 / np.pi)
+            correct = (abs_err < rot_tol)
 
         overall_correct = overall_correct & correct
+        acc_df[label_name] = correct.astype(np.float32)
 
     # count where all predictions are correct for overall accuracy
-    overall_correct = np.sum(overall_correct)
-    acc_dict['overall_acc'] = overall_correct / total_counted
+    acc_df['overall_acc'] = overall_correct.astype(np.float32)
 
-    return acc_dict
+    return acc_df

@@ -10,6 +10,8 @@ from tactile_gym_servo_control.data_collection.setup_data_collection import setu
 
 np.warnings.filterwarnings('ignore', category=np.VisibleDeprecationWarning)
 
+stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
+
 
 def collect_data(
     target_df,
@@ -143,8 +145,8 @@ if __name__ == "__main__":
         stimulus_pos = [0.6, 0.0, 0.0125]
         stimulus_rpy = [0, 0, 0]
         stim_path = os.path.join(
-            os.path.dirname(__file__),
-            "../stimuli/circle/circle.urdf"
+            stimuli_path,
+            "circle/circle.urdf"
         )
 
         target_df, image_dir, workframe_pos, workframe_rpy = setup_data_collection(

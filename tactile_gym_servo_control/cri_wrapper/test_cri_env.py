@@ -8,6 +8,8 @@ import pkgutil
 from tactile_gym_servo_control.cri_wrapper.cri_robot_arm import CRIRobotArm
 from tactile_gym.assets import add_assets_path
 
+stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
+
 
 def main(
     show_gui=True,
@@ -73,8 +75,8 @@ def main(
 
     stimulus_id = pb.loadURDF(
         os.path.join(
-            os.path.dirname(__file__),
-            "../stimuli/square/square.urdf"
+            stimuli_path,
+            "square/square.urdf"
         ),
         stimulus_pos,
         stimulus_orn,

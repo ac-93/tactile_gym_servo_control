@@ -8,6 +8,8 @@ from tactile_gym_servo_control.learning.image_generator import numpy_collate
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
+data_path = os.path.join(os.path.dirname(__file__), '../data')
+
 learning_params = {
     'batch_size':  8,
     'shuffle': True,
@@ -34,8 +36,8 @@ task = 'surface_3d'
 # task = 'edge_5d'
 
 data_dirs = [
-    os.path.join(os.path.dirname(__file__), '../data/', task, 'tap', 'train'),
-    # os.path.join(os.path.dirname(__file__), '../data/', task, 'tap', 'val'),
+    os.path.join(data_path, task, 'tap', 'train'),
+    # os.path.join(data_path, task, 'tap', 'val'),
 ]
 
 

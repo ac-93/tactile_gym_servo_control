@@ -6,6 +6,8 @@ import json
 
 from tactile_gym.utils.general_utils import check_dir
 
+data_path = os.path.join(os.path.dirname(__file__), '../data')
+
 
 def make_target_df_rand(
     poses_rng, moves_rng, num_poses, obj_poses, shuffle_data=False
@@ -69,8 +71,7 @@ def create_data_dir(
 
     # experiment metadata
     home_dir = os.path.join(
-        os.path.dirname(__file__),
-        "../data",
+        data_path,
         task_name,
         "shear" if apply_shear else "tap"
     )

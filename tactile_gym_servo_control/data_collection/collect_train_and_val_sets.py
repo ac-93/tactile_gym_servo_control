@@ -6,6 +6,7 @@ from tactile_gym_servo_control.data_collection.setup_data_collection import setu
 from tactile_gym_servo_control.data_collection.setup_data_collection import setup_edge_3d_data_collection
 from tactile_gym_servo_control.data_collection.setup_data_collection import setup_edge_5d_data_collection
 
+stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
 
 # tasks = ["surface_3d"]
 # tasks = ["edge_2d"]
@@ -41,7 +42,7 @@ for task in tasks:
     stimulus_pos = [0.6, 0.0, 0.0125]
     stimulus_rpy = [0, 0, 0]
     stim_path = os.path.join(
-        os.path.dirname(__file__), "../stimuli/circle/circle.urdf"
+        stimuli_path, "circle/circle.urdf"
     )
 
     collection_params = {

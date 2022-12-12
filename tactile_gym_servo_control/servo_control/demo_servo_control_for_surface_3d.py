@@ -9,6 +9,8 @@ from tactile_gym_servo_control.servo_control.servo_control import run_servo_cont
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
+model_path = os.path.join(os.path.dirname(__file__), '../learned_models')
+
 
 def move_init_pose(robot, stim_name):
 
@@ -26,8 +28,7 @@ if __name__ == '__main__':
 
     # set save dir
     save_dir_name = os.path.join(
-        os.path.dirname(__file__),
-        '../learning/saved_models',
+        model_path,
         task,
         data_collection,
     )

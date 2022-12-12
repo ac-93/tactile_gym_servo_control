@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: tactile-gym-servo-control
+Version: 0.0.1
+Summary: Conversion between tactile image gathered on a physical robot and those gathered in simulation
+Author: Alex Church, Yijiong Lin
+Author-email: alexchurch1993@gmail.com, yijionglin.bourne@gmail.com
+License: MIT
+License-File: LICENSE
