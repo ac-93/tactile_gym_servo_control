@@ -14,11 +14,9 @@ stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
 
 
 def collect_data(
+    embodiment,
     target_df,
     image_dir,
-    stim_path,
-    stimulus_pos,
-    stimulus_rpy,
     workframe_pos,
     workframe_rpy,
     tactip_params,
@@ -27,22 +25,10 @@ def collect_data(
     quick_mode=False,
 ):
 
-    # setup robot data collection env
-    robot, _ = setup_pybullet_env(
-        stim_path,
-        tactip_params,
-        stimulus_pos,
-        stimulus_rpy,
-        workframe_pos,
-        workframe_rpy,
-        show_gui,
-        show_tactile,
-    )
-
     hover_dist = 0.0075
 
     # move to work frame
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
 
     # ==== data collection loop ====
     for index, row in target_df.iterrows():
@@ -72,30 +58,30 @@ def collect_data(
             print(f"Collecting data for object {i_obj}, pose {i_pose}: ...")
 
         # move to slightly above new pose (avoid changing pose in contact with object)
-        robot.move_linear(
+        embodiment.move_linear(
             final_pos - move_pos - [0, 0, hover_dist],
             final_rpy - move_rpy,
             quick_mode
         )
 
         # move down to offset position
-        robot.move_linear(
+        embodiment.move_linear(
             final_pos - move_pos,
             final_rpy - move_rpy,
             quick_mode
         )
         # move to target positon inducing shear effects
-        robot.move_linear(
+        embodiment.move_linear(
             final_pos,
             final_rpy,
             quick_mode
         )
 
         # process frames and save
-        img = robot.process_sensor()
+        img = embodiment.process_sensor()
 
         # raise tip before next move
-        robot.move_linear(
+        embodiment.move_linear(
             final_pos - [0, 0, hover_dist],
             final_rpy,
             quick_mode
@@ -104,6 +90,8 @@ def collect_data(
         # save tap img
         image_outfile = os.path.join(image_dir, sensor_image)
         cv2.imwrite(image_outfile, img)
+
+    embodiment.close()
 
 
 if __name__ == "__main__":
@@ -156,12 +144,22 @@ if __name__ == "__main__":
             collect_dir_name=collect_dir_name,
         )
 
-        collect_data(
-            target_df,
-            image_dir,
+        # setup robot data collection env
+        embodiment, _ = setup_pybullet_env(
             stim_path,
+            tactip_params,
             stimulus_pos,
             stimulus_rpy,
+            workframe_pos,
+            workframe_rpy,
+            show_gui,
+            show_tactile,
+        )
+
+        collect_data(
+            embodiment,
+            target_df,
+            image_dir,
             workframe_pos,
             workframe_rpy,
             tactip_params,

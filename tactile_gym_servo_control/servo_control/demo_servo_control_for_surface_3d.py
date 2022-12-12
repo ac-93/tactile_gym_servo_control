@@ -3,7 +3,7 @@ import os
 
 from tactile_gym.utils.general_utils import load_json_obj
 from tactile_gym_servo_control.learning.learning_utils import import_task
-from tactile_gym_servo_control.servo_control.servo_control import load_robot_and_env
+from tactile_gym_servo_control.servo_control.servo_control import load_embodiment_and_env
 from tactile_gym_servo_control.servo_control.servo_control import load_nn_model
 from tactile_gym_servo_control.servo_control.servo_control import run_servo_control
 
@@ -12,13 +12,13 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 model_path = os.path.join(os.path.dirname(__file__), '../learned_models')
 
 
-def move_init_pose(robot, stim_name):
+def move_init_pose(embodiment, stim_name):
 
     if stim_name in ["saddle"]:
         init_pos = [-0.04, 0.0, -0.01]
         init_rpy = [0.0, 0.0, 0.0]
 
-    robot.move_linear(init_pos, init_rpy, quick_mode=False)
+    embodiment.move_linear(init_pos, init_rpy, quick_mode=False)
 
 
 if __name__ == '__main__':
@@ -47,16 +47,16 @@ if __name__ == '__main__':
 
     stim_name = "saddle"
 
-    robot = load_robot_and_env(stim_name)
+    embodiment = load_embodiment_and_env(stim_name)
 
-    move_init_pose(robot, stim_name)
+    move_init_pose(embodiment, stim_name)
 
     trained_model, learning_params, image_processing_params = load_nn_model(
         save_dir_name, out_dim=out_dim
     )
 
     run_servo_control(
-        robot,
+        embodiment,
         trained_model,
         image_processing_params,
         ref_pose=ref_pose,

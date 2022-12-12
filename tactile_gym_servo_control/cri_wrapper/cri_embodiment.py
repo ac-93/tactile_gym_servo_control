@@ -58,7 +58,7 @@ def inv_transform(pose_b, frame_b_a):
     return np.concatenate((pos_a, rot_a))
 
 
-class CRIRobotArm(Robot):
+class CRIEmbodiment(Robot):
     def __init__(
         self,
         pb,
@@ -87,7 +87,7 @@ class CRIRobotArm(Robot):
         TCP_lims[4, 0], TCP_lims[4, 1] = -np.inf, +np.inf  # pitch lims
         TCP_lims[5, 0], TCP_lims[5, 1] = -np.inf, +np.inf  # yaw lims
 
-        super(CRIRobotArm, self).__init__(
+        super(CRIEmbodiment, self).__init__(
             pb,
             rest_poses,
             workframe_pos,

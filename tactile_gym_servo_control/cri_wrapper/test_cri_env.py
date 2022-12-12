@@ -5,7 +5,7 @@ import time
 import numpy as np
 import pkgutil
 
-from tactile_gym_servo_control.cri_wrapper.cri_robot_arm import CRIRobotArm
+from tactile_gym_servo_control.cri_wrapper.cri_embodiment import CRIEmbodiment
 from tactile_gym.assets import add_assets_path
 
 stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
@@ -98,7 +98,7 @@ def main(
     workframe_pos = [0.65, 0.0, 0.15]  # relative to world frame
     workframe_rpy = [-np.pi, 0.0, np.pi / 2]  # relative to world frame
 
-    robot = CRIRobotArm(
+    embodiment = CRIEmbodiment(
         pb,
         workframe_pos=workframe_pos,
         workframe_rpy=workframe_rpy,
@@ -111,21 +111,21 @@ def main(
     )
 
     # move to the workframe
-    robot.move_linear([0, 0, 0], [0, 0, 0])
-    robot.process_sensor()
+    embodiment.move_linear([0, 0, 0], [0, 0, 0])
+    embodiment.process_sensor()
 
     # move in different directions
-    test_movement(robot)
+    test_movement(embodiment)
 
     # move to sides of edge
-    test_edge_pos(robot)
+    test_edge_pos(embodiment)
 
     if show_gui:
         while pb.isConnected():
-            robot.arm.draw_workframe()
-            robot.arm.draw_TCP()
-            # robot.arm.print_joint_pos_vel()
-            robot.step_sim()
+            embodiment.arm.draw_workframe()
+            embodiment.arm.draw_TCP()
+            # embodiment.arm.print_joint_pos_vel()
+            embodiment.step_sim()
             time.sleep(time_step)
 
             q_key = ord("q")
@@ -134,130 +134,130 @@ def main(
                 exit()
 
 
-def test_edge_pos(robot, quick_mode=False):
+def test_edge_pos(embodiment, quick_mode=False):
     # move near
-    robot.apply_action(
+    embodiment.apply_action(
         [0, -0.05, 0.095, 0, 0, 0],
         control_mode="TCP_position_control",
         max_steps=1000,
     )
-    robot.get_tactile_observation()
+    embodiment.get_tactile_observation()
     print("move near edge")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
     # move left
-    robot.move_linear([0.05, 0, 0.095], [0, 0, 0], quick_mode)
-    robot.get_tactile_observation()
+    embodiment.move_linear([0.05, 0, 0.095], [0, 0, 0], quick_mode)
+    embodiment.get_tactile_observation()
     print("move left edge")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
     # move far
-    robot.move_linear([0, 0.05, 0.095], [0, 0, 0], quick_mode)
-    robot.get_tactile_observation()
+    embodiment.move_linear([0, 0.05, 0.095], [0, 0, 0], quick_mode)
+    embodiment.get_tactile_observation()
     print("move far edge")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
     # move right
-    robot.move_linear([-0.05, 0, 0.095], [0, 0, 0], quick_mode)
-    robot.get_tactile_observation()
+    embodiment.move_linear([-0.05, 0, 0.095], [0, 0, 0], quick_mode)
+    embodiment.get_tactile_observation()
     print("move right edge")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
 
-def test_movement(robot, quick_mode=False):
+def test_movement(embodiment, quick_mode=False):
     # move x
-    robot.move_linear([0.05, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0.05, 0, 0], [0, 0, 0], quick_mode)
     print("move +x")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
-    robot.move_linear([-0.05, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([-0.05, 0, 0], [0, 0, 0], quick_mode)
     print("move -x")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
     # move y
-    robot.move_linear([0, +0.05, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, +0.05, 0], [0, 0, 0], quick_mode)
     print("move +y")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
-    robot.move_linear([0, -0.05, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, -0.05, 0], [0, 0, 0], quick_mode)
     print("move -y")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
     # move z
-    robot.move_linear([0, 0, 0.05], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0.05], [0, 0, 0], quick_mode)
     print("move +z")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
-    robot.move_linear([0, 0, -0.05], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, -0.05], [0, 0, 0], quick_mode)
     print("move -z")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
     # move roll
-    robot.move_linear([0, 0, 0], [0.785, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0.785, 0, 0], quick_mode)
     print("move +roll")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [-0.785, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [-0.785, 0, 0], quick_mode)
     print("move -roll")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
     # move pitch
-    robot.move_linear([0, 0, 0], [0, +0.785, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, +0.785, 0], quick_mode)
     print("move +pitch")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, -0.785, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, -0.785, 0], quick_mode)
     print("move -pitch")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 
     # move yaw
-    robot.move_linear([0, 0, 0], [0, 0, +0.785], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, +0.785], quick_mode)
     print("move +yaw")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, -0.785], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, -0.785], quick_mode)
     print("move -yaw")
     time.sleep(1)
-    robot.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
+    embodiment.move_linear([0, 0, 0], [0, 0, 0], quick_mode)
     print("move center")
     time.sleep(1)
 

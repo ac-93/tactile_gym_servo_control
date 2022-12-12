@@ -3,7 +3,7 @@ import pybullet_utils.bullet_client as bc
 
 import pkgutil
 
-from tactile_gym_servo_control.cri_wrapper.cri_robot_arm import CRIRobotArm
+from tactile_gym_servo_control.cri_wrapper.cri_embodiment import CRIEmbodiment
 from tactile_gym.assets import add_assets_path
 
 
@@ -87,8 +87,8 @@ def setup_pybullet_env(
         useFixedBase=True,
     )
 
-    # create the robot
-    robot = CRIRobotArm(
+    # create the robot and sensor embodiment
+    embodiment = CRIEmbodiment(
         pb,
         workframe_pos=workframe_pos,
         workframe_rpy=workframe_rpy,
@@ -100,4 +100,4 @@ def setup_pybullet_env(
         show_tactile=show_tactile,
     )
 
-    return robot, stimulus
+    return embodiment, stimulus

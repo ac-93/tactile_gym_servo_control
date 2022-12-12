@@ -10,7 +10,7 @@ from tactile_gym.utils.general_utils import load_json_obj
 
 from tactile_gym_servo_control.learning.learning_utils import decode_pose
 from tactile_gym_servo_control.learning.learning_utils import POSE_LABEL_NAMES, POS_LABEL_NAMES, ROT_LABEL_NAMES
-from tactile_gym_servo_control.cri_wrapper.cri_robot_arm import quat2euler, euler2quat, transform, inv_transform
+from tactile_gym_servo_control.cri_wrapper.cri_embodiment import quat2euler, euler2quat, transform, inv_transform
 from tactile_gym_servo_control.utils.pybullet_utils import setup_pybullet_env
 from tactile_gym_servo_control.learning.networks import CNN
 from tactile_gym_servo_control.utils.image_transforms import process_image
@@ -20,7 +20,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
 
 
-def load_robot_and_env(stim_name="square"):
+def load_embodiment_and_env(stim_name="square"):
 
     assert stim_name in ["square", "foil",
                          "clover", "circle",
@@ -52,7 +52,7 @@ def load_robot_and_env(stim_name="square"):
     workframe_rpy = [-np.pi, 0.0, np.pi / 2]
 
     # setup robot data collection env
-    robot, _ = setup_pybullet_env(
+    embodiment, _ = setup_pybullet_env(
         stim_path,
         tactip_params,
         stimulus_pos,
@@ -63,7 +63,7 @@ def load_robot_and_env(stim_name="square"):
         show_tactile,
     )
 
-    return robot
+    return embodiment
 
 
 def load_nn_model(save_dir_name, out_dim, device='cpu'):
