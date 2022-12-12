@@ -116,9 +116,9 @@ class CRIEmbodiment(Robot):
             self.blocking_move(
                 max_steps=10000,
                 constant_vel=0.00025,
-                pos_tol=1e-4,
-                orn_tol=1e-4,
-                jvel_tol=0.1,
+                pos_tol=5e-5,
+                orn_tol=5e-5,
+                jvel_tol=0.01,
             )
 
         # fast but unrealistic moves (bigger_moves = worse performance)
@@ -126,9 +126,9 @@ class CRIEmbodiment(Robot):
             self.blocking_move(
                 max_steps=1000,
                 constant_vel=None,
-                pos_tol=1e-4,
-                orn_tol=1e-4,
-                jvel_tol=0.1,
+                pos_tol=5e-5,
+                orn_tol=5e-5,
+                jvel_tol=0.01,
             )
 
     def get_tcp_pose(self):

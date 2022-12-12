@@ -1,5 +1,6 @@
 import os
 
+from tactile_gym_servo_control.utils.pybullet_utils import setup_pybullet_env
 from tactile_gym_servo_control.data_collection.collect_data import collect_data
 from tactile_gym_servo_control.data_collection.setup_data_collection import setup_surface_3d_data_collection
 from tactile_gym_servo_control.data_collection.setup_data_collection import setup_edge_2d_data_collection
@@ -42,7 +43,7 @@ for task in tasks:
     stimulus_pos = [0.6, 0.0, 0.0125]
     stimulus_rpy = [0, 0, 0]
     stim_path = os.path.join(
-        stimuli_path, "circle/circle.urdf"
+        stimuli_path, "square/square.urdf"
     )
 
     collection_params = {
@@ -59,12 +60,22 @@ for task in tasks:
             collect_dir_name=collect_dir_name,
         )
 
-        collect_data(
-            target_df,
-            image_dir,
+        # setup robot data collection env
+        embodiment, _ = setup_pybullet_env(
             stim_path,
+            tactip_params,
             stimulus_pos,
             stimulus_rpy,
+            workframe_pos,
+            workframe_rpy,
+            show_gui,
+            show_tactile,
+        )
+
+        collect_data(
+            embodiment,
+            target_df,
+            image_dir,
             workframe_pos,
             workframe_rpy,
             tactip_params,

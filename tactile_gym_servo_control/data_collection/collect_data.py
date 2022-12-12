@@ -134,7 +134,7 @@ if __name__ == "__main__":
         stimulus_rpy = [0, 0, 0]
         stim_path = os.path.join(
             stimuli_path,
-            "circle/circle.urdf"
+            "square/square.urdf"
         )
 
         target_df, image_dir, workframe_pos, workframe_rpy = setup_data_collection(

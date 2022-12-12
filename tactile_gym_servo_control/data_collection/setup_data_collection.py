@@ -19,7 +19,10 @@ def setup_surface_3d_data_collection(
     workframe_rpy = [-np.pi, 0.0, np.pi / 2]
 
     obj_poses = [[0, 0, 0, 0, 0, 0]]
-    poses_rng = [[0, 0, 0.5, -25, -25, 0], [0, 0, 5.5, 25, 25, 0]]
+    poses_rng = [
+        [0.0, 0.0, 0.5, -25.0, -25.0, 0.0],
+        [0.0, 0.0, 5.5,  25.0,  25.0, 0.0]
+    ]
 
     if apply_shear:
         moves_rng = [[-5, -5, 0, -5, -5, -5], [5, 5, 0, 5, 5, 5]]
@@ -58,11 +61,14 @@ def setup_edge_2d_data_collection(
 ):
 
     # set the work frame of the robot (relative to world frame)
-    workframe_pos = [0.545, 0.0, 0.0525]
+    workframe_pos = [0.55, 0.0, 0.0525]
     workframe_rpy = [-np.pi, 0.0, np.pi / 2]
 
     obj_poses = [[0, 0, 0, 0, 0, 0]]
-    poses_rng = [[0, -6.0, 1.5, -2.5, -2.5, -180], [0, 6.0, 5.5, 2.5, 2.5, 180]]
+    poses_rng = [
+        [0.0, -4.0, 2.0, -2.5, -2.5, -180.0],
+        [0.0,  4.0, 5.5,  2.5,  2.5,  180.0]
+    ]
 
     if apply_shear:
         moves_rng = [[-5, -5, 0, -5, -5, -5], [5, 5, 0, 5, 5, 5]]
@@ -101,11 +107,14 @@ def setup_edge_3d_data_collection(
 ):
 
     # set the work frame of the robot (relative to world frame)
-    workframe_pos = [0.545, 0.0, 0.0525]
+    workframe_pos = [0.55, 0.0, 0.0525]
     workframe_rpy = [-np.pi, 0.0, np.pi / 2]
 
     obj_poses = [[0, 0, 0, 0, 0, 0]]
-    poses_rng = [[0, -6.0, 1.5, -25, -25, -180], [0, 6.0, 5.5, 25, 25, 180]]
+    poses_rng = [
+        [0.0, -4.0, 2.0, -15.0, -15.0, -180.0],
+        [0.0,  4.0, 5.5,  15.0,  15.0,  180.0]
+    ]
 
     if apply_shear:
         moves_rng = [[-5, -5, 0, -5, -5, -5], [5, 5, 0, 5, 5, 5]]
@@ -144,11 +153,14 @@ def setup_edge_5d_data_collection(
 ):
 
     # set the work frame of the robot (relative to world frame)
-    workframe_pos = [0.545, 0.0, 0.0525]
+    workframe_pos = [0.55, 0.0, 0.0525]
     workframe_rpy = [-np.pi, 0.0, np.pi / 2]
 
     obj_poses = [[0, 0, 0, 0, 0, 0]]
-    poses_rng = [[0, -6.0, 1.5, -25, -25, -180], [0, 6.0, 5.5, 25, 25, 180]]
+    poses_rng = [
+        [0.0, -4.0, 2.0, -15.0, -15.0, -180.0],
+        [0.0,  4.0, 5.5,  15.0,  15.0,  180.0]
+    ]
 
     if apply_shear:
         moves_rng = [[-5, -5, 0, -5, -5, -5], [5, 5, 0, 5, 5, 5]]

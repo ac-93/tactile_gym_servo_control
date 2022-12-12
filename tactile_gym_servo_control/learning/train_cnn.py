@@ -355,12 +355,7 @@ if __name__ == "__main__":
     # tasks = ['edge_2d']
     # tasks = ['edge_3d']
     # tasks = ['edge_5d']
-    tasks = [
-        'surface_3d',
-        'edge_2d',
-        'edge_3d',
-        'edge_5d',
-    ]
+    tasks = ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d']
 
     # Parameters
     learning_params = {
