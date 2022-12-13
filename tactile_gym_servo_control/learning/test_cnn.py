@@ -104,7 +104,7 @@ def test_cnn(task, device='cpu'):
 
         # get errors and accuracy
         batch_err_df = err_metric(labels_dict, predictions_dict, label_names)
-        batch_acc_df = acc_metric(labels_dict, predictions_dict, label_names, POS_TOL, ROT_TOL)
+        batch_acc_df = acc_metric(batch_err_df, label_names, POS_TOL, ROT_TOL)
 
         # append error to dataframe
         err_df = pd.concat([err_df, batch_err_df])
@@ -141,8 +141,8 @@ if __name__ == "__main__":
     # task = 'edge_3d'
     task = 'edge_5d'
 
-    device = 'cuda'
-    # device = 'cpu'
+    # device = 'cuda'
+    device = 'cpu'
 
     test_cnn(
         task,

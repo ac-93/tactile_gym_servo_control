@@ -156,7 +156,7 @@ def train_cnn(task, learning_params, image_processing_params, augmentation_param
 
             # get errors and accuracy
             batch_err_df = err_metric(labels_dict, predictions_dict, label_names)
-            batch_acc_df = acc_metric(labels_dict, predictions_dict, label_names, POS_TOL, ROT_TOL)
+            batch_acc_df = acc_metric(batch_err_df, label_names, POS_TOL, ROT_TOL)
 
             # append error to dataframe
             err_df = pd.concat([err_df, batch_err_df])
@@ -368,7 +368,7 @@ if __name__ == "__main__":
         'shuffle': True,
         'n_cpu': 8,
         'apply_batchnorm': True,
-        'plot_during_training': False,
+        'plot_during_training': False,  # slows training noticably
     }
 
     image_processing_params = {

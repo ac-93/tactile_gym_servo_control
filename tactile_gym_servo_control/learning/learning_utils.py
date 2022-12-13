@@ -180,32 +180,23 @@ def err_metric(labels, predictions, target_label_names):
     return err_df
 
 
-def acc_metric(labels, predictions, target_label_names, pos_tol=0.2, rot_tol=1.0):
+def acc_metric(err_df, target_label_names, pos_tol=0.2, rot_tol=1.0):
     """
     Accuracy metric for regression problem, counting the number of predictions within a tolerance.
     Position Tolerance (mm), Rotation Tolerance (degrees)
     """
 
-    batch_size = list(labels.values())[0].shape[0]
+    batch_size = err_df.shape[0]
     acc_df = pd.DataFrame(columns=[*POSE_LABEL_NAMES, 'overall_acc'])
     overall_correct = np.ones(batch_size, dtype=bool)
     for label_name in target_label_names:
 
         if label_name in POS_LABEL_NAMES:
-            abs_err = torch.abs(
-                labels[label_name] - predictions[label_name]
-            ).detach().cpu().numpy()
+            abs_err = err_df[label_name]
             correct = (abs_err < pos_tol)
 
         if label_name in ROT_LABEL_NAMES:
-            # convert rad
-            targ_rot = labels[label_name] * np.pi/180
-            pred_rot = predictions[label_name] * np.pi/180
-
-            # Calculate the difference between angles, takining into account the periodicity of angles (thanks ChatGPT)
-            abs_err = torch.abs(
-                torch.atan2(torch.sin(targ_rot - pred_rot), torch.cos(targ_rot - pred_rot))
-            ).detach().cpu().numpy() * (180.0 / np.pi)
+            abs_err = err_df[label_name]
             correct = (abs_err < rot_tol)
 
         overall_correct = overall_correct & correct

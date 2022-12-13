@@ -70,6 +70,7 @@ def collect_data(
             final_rpy - move_rpy,
             quick_mode
         )
+
         # move to target positon inducing shear effects
         embodiment.move_linear(
             final_pos,
@@ -77,7 +78,7 @@ def collect_data(
             quick_mode
         )
 
-        # process frames and save
+        # process frames
         img = embodiment.process_sensor()
 
         # raise tip before next move
@@ -87,7 +88,7 @@ def collect_data(
             quick_mode
         )
 
-        # save tap img
+        # save image
         image_outfile = os.path.join(image_dir, sensor_image)
         cv2.imwrite(image_outfile, img)
 

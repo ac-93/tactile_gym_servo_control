@@ -87,18 +87,12 @@ The task, learning and image processing parameters are set within the code. For 
 
 Demonstration files are provided for all tasks in the example directory. These use pretrained models included in the repo, training your own models will overwrite these pretrained models. The main logic for servo control is provided in ```servo_control/servo_control.py```.
 
-To demonstate servo control, from the base directory run
+To demonstrate servo control, from the base directory run
 
 ```
-python servo_control/demo_servo_control_for_surface_3d.py
-
-python servo_control/demo_servo_control_for_edge_2d.py
-
-python servo_control/demo_servo_control_for_edge_3d.py
-
-python servo_control/demo_servo_control_for_edge_5d.py
+python servo_control/servo_control.py
 ```
-
+The task can be selected by adjusting the code.
 
 ### Bibtex ###
 

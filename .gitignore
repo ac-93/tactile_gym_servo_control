@@ -23,6 +23,7 @@ dist/
 
 # Package files
 *.jar
+*.egg-info/
 
 # Maven
 target/
@@ -52,4 +53,3 @@ Thumbs.db
 *.flv
 *.mov
 *.wmv
-

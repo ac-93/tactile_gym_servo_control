@@ -10,38 +10,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 data_path = os.path.join(os.path.dirname(__file__), '../data')
 
-learning_params = {
-    'batch_size':  8,
-    'shuffle': True,
-    'n_cpu': 1,
-}
 
-image_processing_params = {
-    'dims': (128, 128),
-    'bbox': None,
-    'thresh': False,
-    'stdiz': False,
-    'normlz': True,
-}
-
-augmentation_params = {
-    'rshift': (0.025, 0.025),
-    'rzoom':   None,
-    'brightlims': None,
-    'noise_var': None,
-}
-task = 'surface_3d'
-# task = 'edge_2d'
-# task = 'edge_3d'
-# task = 'edge_5d'
-
-data_dirs = [
-    os.path.join(data_path, task, 'tap', 'train'),
-    # os.path.join(data_path, task, 'tap', 'val'),
-]
-
-
-def run():
+def run(data_dirs, learning_params, image_processing_params, augmentation_param):
 
     # Configure dataloaders
     generator_args = {**image_processing_params, **augmentation_params}
@@ -77,4 +47,37 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+
+    # tasks = ['surface_3d']
+    # tasks = ['edge_2d']
+    # tasks = ['edge_3d']
+    # tasks = ['edge_5d']
+    tasks = ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d']
+    
+    learning_params = {
+        'batch_size':  8,
+        'shuffle': True,
+        'n_cpu': 1,
+    }
+
+    image_processing_params = {
+        'dims': (128, 128),
+        'bbox': None,
+        'thresh': False,
+        'stdiz': False,
+        'normlz': True,
+    }
+
+    augmentation_params = {
+        'rshift': (0.025, 0.025),
+        'rzoom':   None,
+        'brightlims': None,
+        'noise_var': None,
+    }
+
+    data_dirs = [
+        os.path.join(data_path, task, 'tap', 'train') for task in tasks
+        # os.path.join(data_path, task, 'tap', 'val') for task in tasks
+    ]
+
+    run(data_dirs, learning_params, image_processing_params, augmentation_params)
