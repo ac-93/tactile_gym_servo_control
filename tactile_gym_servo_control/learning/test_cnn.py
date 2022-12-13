@@ -1,4 +1,12 @@
+"""
+python test_cnn.py -t surface_3d
+python test_cnn.py -t edge_2d
+python test_cnn.py -t edge_3d
+python test_cnn.py -t edge_5d
+python test_cnn.py -t surface_3d edge_2d edge_3d edge_5d
+"""
 import os
+import argparse
 import pandas as pd
 from pytorch_model_summary import summary
 from torch.autograd import Variable
@@ -136,15 +144,28 @@ def test_cnn(task, device='cpu'):
 
 if __name__ == "__main__":
 
-    # task = 'surface_3d'
-    # task = 'edge_2d'
-    # task = 'edge_3d'
-    task = 'edge_5d'
-
-    # device = 'cuda'
-    device = 'cpu'
-
-    test_cnn(
-        task,
-        device
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-t','--tasks',
+        nargs='+',
+        help="Choose task from ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d'].",
+        default=['surface_3d']
     )
+    parser.add_argument(
+        '-d','--device',
+        type=str,
+        help="Choose device from ['cpu', 'cuda'].",
+        default='cpu'
+    )
+
+    # parse arguments
+    args = parser.parse_args()
+    tasks = args.tasks
+    device = args.device
+
+    # test the trained networks
+    for task in tasks:
+        test_cnn(
+            task,
+            device
+        )

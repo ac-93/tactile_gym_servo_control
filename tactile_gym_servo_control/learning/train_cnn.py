@@ -1,4 +1,13 @@
+"""
+python train_cnn.py -t surface_3d
+python train_cnn.py -t edge_2d
+python train_cnn.py -t edge_3d
+python train_cnn.py -t edge_5d
+python train_cnn.py -t surface_3d edge_2d edge_3d edge_5d
+"""
+
 import os
+import argparse
 import time
 import numpy as np
 import pandas as pd
@@ -351,11 +360,25 @@ def train_cnn(task, learning_params, image_processing_params, augmentation_param
 
 if __name__ == "__main__":
 
-    # tasks = ['surface_3d']
-    # tasks = ['edge_2d']
-    # tasks = ['edge_3d']
-    # tasks = ['edge_5d']
-    tasks = ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d']
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-t','--tasks',
+        nargs='+',
+        help="Choose task from ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d'].",
+        default=['surface_3d']
+    )
+    parser.add_argument(
+        '-d','--device',
+        type=str,
+        help="Choose device from ['cpu', 'cuda'].",
+        default='cpu'
+    )
+
+    # parse arguments
+    args = parser.parse_args()
+    tasks = args.tasks
+    device = args.device
+
 
     # Parameters
     learning_params = {
@@ -385,9 +408,6 @@ if __name__ == "__main__":
         'brightlims': None,
         'noise_var': None,
     }
-
-    device = 'cuda'
-    # device = 'cpu'
 
     for task in tasks:
         train_cnn(task, learning_params, image_processing_params, augmentation_params, device)

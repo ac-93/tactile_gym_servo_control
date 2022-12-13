@@ -1,4 +1,13 @@
+"""
+python collect_data.py -t surface_3d
+python collect_data.py -t edge_2d
+python collect_data.py -t edge_3d
+python collect_data.py -t edge_5d
+python collect_data.py -t surface_3d edge_2d edge_3d edge_5d
+"""
+
 import os
+import argparse
 import numpy as np
 import cv2
 
@@ -97,11 +106,15 @@ def collect_data(
 
 if __name__ == "__main__":
 
-    # tasks = ["surface_3d"]
-    # tasks = ["edge_2d"]
-    # tasks = ["edge_3d"]
-    # tasks = ["edge_5d"]
-    tasks = ["surface_3d", "edge_2d", "edge_3d", "edge_5d"]
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-t','--tasks',
+        nargs='+',
+        help="Choose task from ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d'].",
+        default=['surface_3d']
+    )
+    args = parser.parse_args()
+    tasks = args.tasks
 
     for task in tasks:
 

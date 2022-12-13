@@ -51,15 +51,17 @@ Data can be quickly generated and gathered in simulation.
 To gather a small amount of example data with visualisation enabled run
 
 ```
-python data_collection/collect_data.py
+python data_collection/collect_data.py -t task_name
 ```
+
+where task_name is selected from ```[surface_3d edge_2d edge_3d edge_5d]```. If multiple tasks are input they will be executed in the order of input.
 
 To collect a full training and validation sets run
 
 (**WARNING** - This will gather 28,000 images - approximately 100mb)
 
 ```
-python data_collection/collect_train_and_val_sets.py
+python data_collection/collect_train_and_val_sets.py -t task_name
 ```
 
 This can be generated significantly faster with rendering and GUI disabled on Ubuntu however a bug for pybullet on Windows causes a crash during collection in this case. The GUI should be enabled if using a Windows machine for data collection.
@@ -71,17 +73,23 @@ This section implements supervised deep learning methods for predicting the pose
 Image processing and augmentations are used for more robust learning. To visualise the effects of these run
 
 ```
-python learning/demo_image_generation.py
+python learning/demo_image_generation.py -t task_name
 ```
 
 To train a CNN for pose prediction run
 
 ```
-python learning/train_cnn.py
+python learning/train_cnn.py -t task_name -d device_name
 ```
 This will overwrite the pretrained models used for demonstrations.
 
 The task, learning and image processing parameters are set within the code. For efficient learning, parameters may need to be tweaked depending on your setup.
+
+A learned model can be evaluated by running
+
+```
+python learning/test_cnn.py -t task_name -d device_name
+```
 
 ### Servo Control ###
 
@@ -90,7 +98,7 @@ Demonstration files are provided for all tasks in the example directory. These u
 To demonstrate servo control, from the base directory run
 
 ```
-python servo_control/servo_control.py
+python servo_control/servo_control.py -t task_name -d device_name
 ```
 The task can be selected by adjusting the code.
 

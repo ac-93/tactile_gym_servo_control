@@ -32,7 +32,7 @@ def import_task(task_name):
         label_names = ['y', 'z', 'Rx', 'Ry', 'Rz']
 
     else:
-        raise ValueError('Incorrect task_name specified')
+        raise ValueError('Incorrect task_name specified: {}'.format(task_name))
 
     return out_dim, label_names
 
