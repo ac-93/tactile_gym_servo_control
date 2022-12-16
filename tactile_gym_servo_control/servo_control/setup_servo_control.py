@@ -19,10 +19,10 @@ def setup_surface_3d_servo_control():
 
     # set reference pose and gains
     ref_pose = np.array([
-        0.001, 0.0, 0.0025,  # meters
-        np.deg2rad(0.0), np.deg2rad(0.0), np.deg2rad(0.0)  # rad
+        1.0, 0.0, 2.5,  # millimeters
+        0.0, 0.0, 0.0  # degrees
     ])
-    p_gains = np.array([0.5, 0.5, 0.5, 1.0, 1.0, 0.0])
+    p_gains = np.array([0.5, 0.5, 0.5, 0.1, 0.1, 0.0])
 
     return move_init_pose, stim_names, ep_len, ref_pose, p_gains
 
@@ -47,10 +47,10 @@ def setup_edge_2d_servo_control():
 
     # set reference pose and gains
     ref_pose = np.array([
-            0.001, 0.0, 0.0,  # meters
-            np.deg2rad(0.0), np.deg2rad(0.0), np.deg2rad(0.0)  # rad
+            1.0, 0.0, 2.5,  # millimeters
+            0.0, 0.0, 0.0  # degrees
     ])
-    p_gains = np.array([1.0, 1.0, 0.0, 0.0, 0.0, 0.25])
+    p_gains = np.array([1.0, 1.0, 0.0, 0.0, 0.0, 0.1])
 
     return move_init_pose, stim_names, ep_len, ref_pose, p_gains
 
@@ -70,10 +70,10 @@ def setup_edge_3d_servo_control():
 
     # set reference pose and gains
     ref_pose = np.array([
-            0.001, 0.0, 0.0035,  # meters
-            np.deg2rad(0.0), np.deg2rad(0.0), np.deg2rad(0.0)  # rad
+            1.0, 0.0, 3.5,  # millimeters
+            0.0, 0.0, 0.0  # degrees
     ])
-    p_gains = np.array([1.0, 1.0, 0.5, 0.0, 0.0, 0.25])
+    p_gains = np.array([1.0, 1.0, 0.5, 0.0, 0.0, 0.05])
 
     return move_init_pose, stim_names, ep_len, ref_pose, p_gains
 
@@ -93,10 +93,10 @@ def setup_edge_5d_servo_control():
 
     # set reference pose and gains
     ref_pose = np.array([
-            0.001, 0.0, 0.004,  # meters
-            np.deg2rad(0.0), np.deg2rad(0.0), np.deg2rad(0.0)  # rad
+            1.0, 0.0, 4.0,  # millimeters
+            0.0, 0.0, 0.0  # degrees
     ])
-    p_gains = np.array([1.0, 1.0, 0.5, 0.25, 0.25, 0.25])
+    p_gains = np.array([1.0, 1.0, 0.5, 0.05, 0.05, 0.05])
 
     return move_init_pose, stim_names, ep_len, ref_pose, p_gains
 

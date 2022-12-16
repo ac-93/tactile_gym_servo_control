@@ -34,7 +34,7 @@ stimuli_path = os.path.join(os.path.dirname(__file__), "../stimuli")
 model_path = os.path.join(os.path.dirname(__file__), '../learned_models')
 
 
-def load_embodiment_and_env(stim_name="square"):
+def load_embodiment_and_env(init_ref_pose, stim_name="square"):
 
     assert stim_name in ["square", "foil",
                          "clover", "circle",
@@ -77,7 +77,16 @@ def load_embodiment_and_env(stim_name="square"):
         show_tactile,
     )
 
-    return embodiment
+    # add user controllable ref pose to GUI
+    ref_pose_ids = []
+    ref_pose_ids.append(embodiment._pb.addUserDebugParameter('x', -2.0, 2.0, init_ref_pose[POSE_LABEL_NAMES.index('x')]))
+    ref_pose_ids.append(embodiment._pb.addUserDebugParameter('y', -2.0, 2.0, init_ref_pose[POSE_LABEL_NAMES.index('y')]))
+    ref_pose_ids.append(embodiment._pb.addUserDebugParameter('z', 2.0, 5.0, init_ref_pose[POSE_LABEL_NAMES.index('z')]))
+    ref_pose_ids.append(embodiment._pb.addUserDebugParameter('Rx', -15.0, 15.0, init_ref_pose[POSE_LABEL_NAMES.index('Rx')]))
+    ref_pose_ids.append(embodiment._pb.addUserDebugParameter('Ry', -15.0, 15.0, init_ref_pose[POSE_LABEL_NAMES.index('Ry')]))
+    ref_pose_ids.append(embodiment._pb.addUserDebugParameter('Rz', -180.0, 180.0, init_ref_pose[POSE_LABEL_NAMES.index('Rz')]))
+
+    return embodiment, ref_pose_ids
 
 
 def get_prediction(
@@ -132,7 +141,6 @@ def compute_target_pose(pred_pose, ref_pose, p_gains, tcp_pose):
     """
     Compute workframe pose for maintaining reference pose from predicted pose
     """
-
     # calculate deltas between reference and predicted pose
     ref_pose_q = euler2quat(ref_pose)
     pred_pose_q = euler2quat(pred_pose)
@@ -150,13 +158,13 @@ def compute_target_pose(pred_pose, ref_pose, p_gains, tcp_pose):
 
 
 def run_servo_control(
-            robot,
+            embodiment,
             trained_model,
             image_processing_params,
-            ref_pose=np.zeros(6),
             p_gains=np.zeros(6),
             label_names=[],
             pose_limits=[],
+            ref_pose_ids=[],
             ep_len=400,
             quick_mode=True,
             record_vid=False,
@@ -168,10 +176,22 @@ def run_servo_control(
     for i in range(ep_len):
 
         # get current tactile observation
-        tactile_image = robot.get_tactile_observation()
+        tactile_image = embodiment.get_tactile_observation()
 
         # get current TCP pose
-        tcp_pose = robot.get_tcp_pose()
+        tcp_pose = embodiment.get_tcp_pose()
+
+        ref_pose = []
+        for j, label_name in enumerate(POSE_LABEL_NAMES):
+            ref = embodiment._pb.readUserDebugParameter(ref_pose_ids[j])
+            if ref is not None:
+                if label_name in POS_LABEL_NAMES:
+                    ref *= 1e-3
+                if label_name in ROT_LABEL_NAMES:
+                    ref *= np.pi/180
+                if p_gains[j] == 0.0:
+                    ref = 0
+            ref_pose.append(ref)
 
         # predict pose from observation
         pred_pose = get_prediction(
@@ -189,22 +209,22 @@ def run_servo_control(
         )
 
         # move to new pose
-        robot.move_linear(target_pose[:3], target_pose[3:], quick_mode=quick_mode)
+        embodiment.move_linear(target_pose[:3], target_pose[3:], quick_mode=quick_mode)
 
         # draw TCP frame
-        robot.arm.draw_TCP(lifetime=10.0)
+        embodiment.arm.draw_TCP(lifetime=10.0)
 
         # render frames
         if record_vid:
-            render_img = robot.render()
+            render_img = embodiment.render()
             render_frames.append(render_img)
 
         q_key = ord("q")
-        keys = robot._pb.getKeyboardEvents()
-        if q_key in keys and keys[q_key] & robot._pb.KEY_WAS_TRIGGERED:
+        keys = embodiment._pb.getKeyboardEvents()
+        if q_key in keys and keys[q_key] & embodiment._pb.KEY_WAS_TRIGGERED:
             exit()
 
-    robot.close()
+    embodiment.close()
 
     if record_vid:
         imageio.mimwrite(
@@ -260,12 +280,12 @@ if __name__ == '__main__':
         pose_limits = [pose_limits_dict['pose_llims'], pose_limits_dict['pose_ulims']]
 
         # setup the task
-        move_init_pose, stim_names, ep_len, ref_pose, p_gains = setup_servo_control()
+        move_init_pose, stim_names, ep_len, init_ref_pose, p_gains = setup_servo_control()
 
         # perform the servo control
         for stim_name in stim_names:
 
-            embodiment = load_embodiment_and_env(stim_name)
+            embodiment, ref_pose_ids = load_embodiment_and_env(init_ref_pose, stim_name)
 
             move_init_pose(embodiment, stim_name)
 
@@ -287,10 +307,10 @@ if __name__ == '__main__':
                 embodiment,
                 trained_model,
                 image_processing_params,
-                ref_pose=ref_pose,
                 p_gains=p_gains,
                 label_names=label_names,
                 pose_limits=pose_limits,
+                ref_pose_ids=ref_pose_ids,
                 ep_len=ep_len,
                 quick_mode=False
             )
