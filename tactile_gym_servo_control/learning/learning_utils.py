@@ -2,12 +2,23 @@ import os
 import numpy as np
 import pandas as pd
 import torch
+import random
 
 from tactile_gym.utils.general_utils import save_json_obj, load_json_obj
 
 POSE_LABEL_NAMES = ["x", "y", "z", "Rx", "Ry", "Rz"]
 POS_LABEL_NAMES = ["x", "y", "z"]
 ROT_LABEL_NAMES = ["Rx", "Ry", "Rz"]
+
+
+def seed_everything(seed):
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
 
 
 def import_task(task_name):

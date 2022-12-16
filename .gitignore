@@ -5,6 +5,7 @@
 
 **/0_VRDemoSettings.txt
 **/data/
+**/experimental_models/
 *.pyc
 __pycache__/
 

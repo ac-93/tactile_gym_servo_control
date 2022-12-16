@@ -1,0 +1,1 @@
+{"model_type": "nature_cnn", "model_kwargs": {"fc_layers": [512, 512], "dropout": 0.0}}

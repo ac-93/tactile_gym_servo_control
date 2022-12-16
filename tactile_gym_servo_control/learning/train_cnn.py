@@ -12,7 +12,6 @@ import time
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from pytorch_model_summary import summary
 from torch.autograd import Variable
 import torch.optim as optim
 import torch.nn as nn
@@ -28,9 +27,10 @@ from tactile_gym_servo_control.learning.learning_utils import decode_pose
 from tactile_gym_servo_control.learning.learning_utils import POSE_LABEL_NAMES
 from tactile_gym_servo_control.learning.learning_utils import acc_metric
 from tactile_gym_servo_control.learning.learning_utils import err_metric
+from tactile_gym_servo_control.learning.learning_utils import seed_everything
 from tactile_gym_servo_control.learning.plot_tools import plot_training
 from tactile_gym_servo_control.learning.plot_tools import plot_error
-from tactile_gym_servo_control.learning.networks import CNN, weights_init_normal
+from tactile_gym_servo_control.learning.networks import create_model
 from tactile_gym_servo_control.learning.image_generator import ImageDataGenerator
 from tactile_gym_servo_control.learning.test_cnn import test_cnn
 
@@ -45,26 +45,16 @@ POS_TOL = 0.25  # mm
 ROT_TOL = 1.0  # deg
 
 
-def train_cnn(task, learning_params, image_processing_params, augmentation_params, device='cpu'):
-
-    # set save dir
-    save_dir_name = os.path.join(
-        model_path,
-        task,
-        'tap',
-    )
-
-    # check save dir exists
-    check_dir(save_dir_name)
-    os.makedirs(save_dir_name, exist_ok=True)
-
-    # save parameters
-    save_json_obj(learning_params, os.path.join(save_dir_name, 'learning_params'))
-    save_json_obj(image_processing_params, os.path.join(save_dir_name, 'image_processing_params'))
-    save_json_obj(augmentation_params, os.path.join(save_dir_name, 'augmentation_params'))
-
-    # set the correct accuracy metric and label generator
-    out_dim, label_names = import_task(task)
+def train_cnn(
+    task,
+    model,
+    label_names,
+    learning_params,
+    image_processing_params,
+    augmentation_params,
+    save_dir_name,
+    device='cpu'
+):
 
     # data dir
     # can specifiy multiple directories that get combined in generator
@@ -98,15 +88,6 @@ def train_cnn(task, learning_params, image_processing_params, augmentation_param
 
     n_train_batches = len(train_loader)
     n_val_batches = len(val_loader)
-
-    # create model
-    model = CNN(out_dim, image_processing_params['dims'], learning_params).to(device)
-    model.apply(weights_init_normal)
-    print(summary(
-        model,
-        torch.zeros((1, 1, *image_processing_params['dims'])).to(device),
-        show_input=True
-    ))
 
     # define optimizer and loss
     loss = nn.MSELoss()
@@ -196,7 +177,7 @@ def train_cnn(task, learning_params, image_processing_params, augmentation_param
     val_acc = []
 
     # for saving best model
-    highest_val_acc = 0
+    lowest_val_loss = np.inf
 
     if learning_params['plot_during_training']:
         # create figures for updating
@@ -307,8 +288,8 @@ def train_cnn(task, learning_params, image_processing_params, augmentation_param
                 update_error_plot(val_pred_df, val_targ_df, val_err_df)
 
             # save the model with lowest val loss
-            if np.mean(val_epoch_acc) > highest_val_acc:
-                highest_val_acc = np.mean(val_epoch_acc)
+            if np.mean(val_epoch_loss) < lowest_val_loss:
+                lowest_val_loss = np.mean(val_epoch_loss)
                 print('Saving Best Model')
                 torch.save(
                     model.state_dict(),
@@ -354,6 +335,12 @@ def train_cnn(task, learning_params, image_processing_params, augmentation_param
 
     test_cnn(
         task,
+        model,
+        label_names,
+        train_pose_limits,
+        learning_params,
+        image_processing_params,
+        save_dir_name,
         device
     )
 
@@ -362,13 +349,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-t','--tasks',
+        '-t', '--tasks',
         nargs='+',
         help="Choose task from ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d'].",
         default=['surface_3d']
     )
     parser.add_argument(
-        '-d','--device',
+        '-d', '--device',
         type=str,
         help="Choose device from ['cpu', 'cuda'].",
         default='cpu'
@@ -379,18 +366,47 @@ if __name__ == "__main__":
     tasks = args.tasks
     device = args.device
 
+    model_params = {
+        # 'model_type': 'simple_cnn',
+        # 'model_kwargs': {
+        #     'conv_layers': [16, 32, 32, 32],
+        #     'conv_kernel_sizes': [5, 5, 5, 5],
+        #     'fc_layers': [512, 512],
+        #     'dropout': 0.0,
+        #     'apply_batchnorm': True,
+        # },
+
+        'model_type': 'nature_cnn',
+        'model_kwargs': {
+            'fc_layers': [512, 512],
+            'dropout': 0.0,
+        },
+
+        # 'model_type': 'resnet',
+        # 'model_kwargs': {
+        #     'layers': [2, 2, 2, 2],
+        # },
+
+        # 'model_type': 'vit',
+        # 'model_kwargs': {
+        #     'patch_size': 32,
+        #     'dim': 128,
+        #     'depth': 6,
+        #     'heads': 8,
+        #     'mlp_dim': 512,
+        # },
+    }
 
     # Parameters
     learning_params = {
+        'seed': 42,
         'batch_size': 128,
         'epochs': 250,
         'lr': 1e-4,
         'lr_factor': 0.5,
         'lr_patience': 10,
-        'dropout': 0.0,
         'shuffle': True,
         'n_cpu': 8,
-        'apply_batchnorm': True,
         'plot_during_training': False,  # slows training noticably
     }
 
@@ -410,4 +426,45 @@ if __name__ == "__main__":
     }
 
     for task in tasks:
-        train_cnn(task, learning_params, image_processing_params, augmentation_params, device)
+
+        seed_everything(learning_params['seed'])
+
+        # set save dir
+        save_dir_name = os.path.join(
+            model_path,
+            task,
+            'tap',
+        )
+
+        # check save dir exists
+        check_dir(save_dir_name)
+        os.makedirs(save_dir_name, exist_ok=True)
+
+        # save parameters
+        save_json_obj(model_params, os.path.join(save_dir_name, 'model_params'))
+        save_json_obj(learning_params, os.path.join(save_dir_name, 'learning_params'))
+        save_json_obj(image_processing_params, os.path.join(save_dir_name, 'image_processing_params'))
+        save_json_obj(augmentation_params, os.path.join(save_dir_name, 'augmentation_params'))
+
+        # set the correct accuracy metric and label generator
+        out_dim, label_names = import_task(task)
+
+        # create the model
+        model = create_model(
+            image_processing_params['dims'],
+            out_dim,
+            model_params,
+            saved_model_dir=None,
+            device=device
+        )
+
+        train_cnn(
+            task,
+            model,
+            label_names,
+            learning_params,
+            image_processing_params,
+            augmentation_params,
+            save_dir_name,
+            device
+        )

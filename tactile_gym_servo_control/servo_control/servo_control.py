@@ -11,9 +11,7 @@ import argparse
 import numpy as np
 import torch
 from torch.autograd import Variable
-from pytorch_model_summary import summary
 import imageio
-
 
 from tactile_gym.utils.general_utils import load_json_obj
 
@@ -22,7 +20,7 @@ from tactile_gym_servo_control.learning.learning_utils import decode_pose
 from tactile_gym_servo_control.learning.learning_utils import POSE_LABEL_NAMES, POS_LABEL_NAMES, ROT_LABEL_NAMES
 from tactile_gym_servo_control.cri_wrapper.cri_embodiment import quat2euler, euler2quat, transform, inv_transform
 from tactile_gym_servo_control.utils.pybullet_utils import setup_pybullet_env
-from tactile_gym_servo_control.learning.networks import CNN
+from tactile_gym_servo_control.learning.networks import create_model
 from tactile_gym_servo_control.utils.image_transforms import process_image
 
 from tactile_gym_servo_control.servo_control.setup_servo_control import setup_surface_3d_servo_control
@@ -80,36 +78,6 @@ def load_embodiment_and_env(stim_name="square"):
     )
 
     return embodiment
-
-
-def load_nn_model(save_dir_name, out_dim, device='cpu'):
-
-    # load params
-    learning_params = load_json_obj(
-        os.path.join(save_dir_name, 'learning_params')
-    )
-    image_processing_params = load_json_obj(
-        os.path.join(save_dir_name, 'image_processing_params')
-    )
-
-    # create and load model
-    model = CNN(
-        out_dim, image_processing_params['dims'], learning_params
-    ).to(device)
-
-    model.load_state_dict(torch.load(os.path.join(
-        save_dir_name, 'best_model.pth'), map_location='cpu')
-    )
-
-    model.eval()
-
-    print(summary(
-        model,
-        torch.zeros((1, 1, *image_processing_params['dims'])).to(device),
-        show_input=True
-    ))
-
-    return model, learning_params, image_processing_params
 
 
 def get_prediction(
@@ -207,7 +175,12 @@ def run_servo_control(
 
         # predict pose from observation
         pred_pose = get_prediction(
-            trained_model, tactile_image, image_processing_params, label_names, pose_limits
+            trained_model,
+            tactile_image,
+            image_processing_params,
+            label_names,
+            pose_limits,
+            device
         )
 
         # compute new pose to move to
@@ -245,13 +218,13 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-t','--tasks',
+        '-t', '--tasks',
         nargs='+',
         help="Choose task from ['surface_3d', 'edge_2d', 'edge_3d', 'edge_5d'].",
         default=['surface_3d']
     )
     parser.add_argument(
-        '-d','--device',
+        '-d', '--device',
         type=str,
         help="Choose device from ['cpu', 'cuda'].",
         default='cpu'
@@ -296,9 +269,19 @@ if __name__ == '__main__':
 
             move_init_pose(embodiment, stim_name)
 
-            trained_model, learning_params, image_processing_params = load_nn_model(
-                save_dir_name, out_dim=out_dim, device=device
+            # load params
+            model_params = load_json_obj(os.path.join(save_dir_name, 'model_params'))
+            learning_params = load_json_obj(os.path.join(save_dir_name, 'learning_params'))
+            image_processing_params = load_json_obj(os.path.join(save_dir_name, 'image_processing_params'))
+
+            trained_model = create_model(
+                image_processing_params['dims'],
+                out_dim,
+                model_params,
+                saved_model_dir=save_dir_name,
+                device=device
             )
+            trained_model.eval()
 
             run_servo_control(
                 embodiment,
