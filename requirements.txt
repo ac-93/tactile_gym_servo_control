@@ -17,6 +17,7 @@ pybullet>=3.1.0
 pyparsing==3.0.9
 python-dateutil==2.8.2
 pytorch-model-summary==0.1.2
+vit-pytorch==1.2.4
 pytz==2022.4
 PyWavelets==1.4.1
 scikit-image==0.19.3
